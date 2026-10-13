@@ -1,0 +1,11 @@
+.gradle/
+build/
+out/
+run/
+.idea/
+*.iml
+bin/
+
+# The jars that are built: they go to the releases of the repository
+release/
+*.log

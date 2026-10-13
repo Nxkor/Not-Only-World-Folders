@@ -1,0 +1,71 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	maven { url = 'https://maven.terraformersmc.com/releases' }
+}
+
+// UI test in the real game: ./gradlew runClientGameTest (screenshots in build/run/clientGameTest)
+loom {
+	accessWidenerPath = file("src/main/resources/worldfolders.accesswidener")
+}
+
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "worldfolders-gametest"
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Optional: config screen in Mod Menu. Mod Menu needs Fabric API, so both only run in dev.
+	compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	localRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+	localRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	// Compile only: Fabric injects interfaces into MinecraftServer, which javac must see to call its methods (quick save).
+	compileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	gametestImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	inputs.property "version", project.version
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+// No test framework: the folder logic has a plain self-check, run as part of `check`.
+test.enabled = false
+tasks.register('spaceCheck', JavaExec) {
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.imnot.worldfolders.SpaceCheck'
+}
+check.dependsOn spaceCheck
+
+// The gametest network synchronizer is flaky when the test creates worlds back to back.
+tasks.named("runClientGameTest") {
+	jvmArgs "-Dfabric.client.gametest.disableNetworkSynchronizer=true"
+}

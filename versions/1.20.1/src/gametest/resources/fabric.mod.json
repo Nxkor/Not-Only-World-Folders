@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "worldfolders-devcheck",
+  "version": "1.0.0",
+  "name": "World Folders dev check",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.imnot.worldfolders.gametest.DevCheck"]
+  },
+  "mixins": ["worldfolders-devcheck.mixins.json"],
+  "depends": {
+    "worldfolders": "*"
+  }
+}

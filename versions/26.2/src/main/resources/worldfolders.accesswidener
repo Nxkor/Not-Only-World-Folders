@@ -1,0 +1,3 @@
+accessWidener v2 official
+# Folder rows on the server list must implement this package-private method.
+accessible method net/minecraft/client/gui/screens/multiplayer/ServerSelectionList$Entry matches (Lnet/minecraft/client/gui/screens/multiplayer/ServerSelectionList$Entry;)Z

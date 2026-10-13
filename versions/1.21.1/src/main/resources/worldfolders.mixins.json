@@ -1,0 +1,33 @@
+{
+  "required": true,
+  "package": "com.imnot.worldfolders.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "priority": 1500,
+  "client": [
+    "AbstractSelectionListMixin",
+    "AbstractSliderButtonMixin",
+    "ConfirmScreenAccessor",
+    "CreateWorldScreenMixin",
+    "JoinMultiplayerScreenMixin",
+    "MinecraftAccessor",
+    "MinecraftMixin",
+    "MouseHandlerMixin",
+    "OnlineServerEntryMixin",
+    "PackEntryMixin",
+    "PackRepositoryMixin",
+    "PackSelectionScreenMixin",
+    "PauseScreenMixin",
+    "ScreenMixin",
+    "SelectWorldScreenMixin",
+    "ServerDataMixin",
+    "ServerSelectionListMixin",
+    "StatsScreenMixin",
+    "TitleScreenMixin",
+    "TransferableSelectionListMixin",
+    "WorldListEntryMixin",
+    "WorldSelectionListMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

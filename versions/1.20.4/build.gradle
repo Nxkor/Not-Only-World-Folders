@@ -1,0 +1,74 @@
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	maven { url = 'https://maven.terraformersmc.com/releases' }
+}
+
+// No client gametest API on this version: ./gradlew runDevCheck drives the real game instead (see DevCheck).
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "worldfolders-devcheck"
+		enableGameTests = false
+		enableClientGameTests = false
+	}
+}
+
+loom {
+	mods {
+		"worldfolders" { sourceSet sourceSets.main }
+		"worldfolders-devcheck" { sourceSet sourceSets.gametest }
+	}
+	runs {
+		devCheck {
+			client()
+			source sourceSets.gametest
+			runDir "build/run/devCheck"
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Optional: config screen in Mod Menu. Mod Menu needs Fabric API, so both only run in dev.
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modGametestImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	inputs.property "version", project.version
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+// No test framework: the folder logic has a plain self-check, run as part of `check`.
+test.enabled = false
+tasks.register('spaceCheck', JavaExec) {
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.imnot.worldfolders.SpaceCheck'
+}
+check.dependsOn spaceCheck

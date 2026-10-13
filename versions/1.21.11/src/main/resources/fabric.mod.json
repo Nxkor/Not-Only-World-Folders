@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "worldfolders",
+  "version": "${version}",
+  "name": "Not Only World Folders",
+  "description": "Organise singleplayer worlds and servers into folders, with trash, favorites, descriptions, copy/paste and drag and drop. Everything lives in config/worldfolders.json: removing the mod leaves your saves untouched.",
+  "authors": ["Wyv_"],
+  "license": "MIT",
+  "icon": "assets/worldfolders/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "modmenu": ["com.imnot.worldfolders.ModMenuEntry"]
+  },
+  "mixins": ["worldfolders.mixins.json"],
+  "accessWidener": "worldfolders.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}

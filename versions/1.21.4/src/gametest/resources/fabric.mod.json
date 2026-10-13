@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "worldfolders-gametest",
+  "version": "1.0.0",
+  "name": "World Folders UI test",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["com.imnot.worldfolders.gametest.WorldFoldersClientTest"]
+  },
+  "mixins": ["worldfolders-gametest.mixins.json"],
+  "depends": {
+    "worldfolders": "*"
+  }
+}

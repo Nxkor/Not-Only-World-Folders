@@ -1,0 +1,70 @@
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	maven { url = 'https://maven.terraformersmc.com/releases' }
+}
+
+// UI test in the real game: ./gradlew runClientGameTest (screenshots in build/run/clientGameTest)
+loom {
+	accessWidenerPath = file("src/main/resources/worldfolders.accesswidener")
+}
+
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "worldfolders-gametest"
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Optional: config screen in Mod Menu. Mod Menu needs Fabric API, so both only run in dev.
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modGametestImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	inputs.property "version", project.version
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+// No test framework: the folder logic has a plain self-check, run as part of `check`.
+test.enabled = false
+tasks.register('spaceCheck', JavaExec) {
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.imnot.worldfolders.SpaceCheck'
+}
+check.dependsOn spaceCheck
+
+// The gametest network synchronizer is flaky when the test creates worlds back to back.
+tasks.named("runClientGameTest") {
+	jvmArgs "-Dfabric.client.gametest.disableNetworkSynchronizer=true"
+}

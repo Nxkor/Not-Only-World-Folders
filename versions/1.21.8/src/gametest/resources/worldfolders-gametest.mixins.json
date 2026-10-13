@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "com.imnot.worldfolders.gametest.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "RivalServerListMixin",
+    "RivalWorldListMixin"
+  ]
+}
