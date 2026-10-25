@@ -16,6 +16,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class AbstractContainerWidgetMixin {
 	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
 	private void worldfolders$background(double x, double y, int button, CallbackInfoReturnable<Boolean> cir) {
+		if (button == 1 && (Object) this instanceof Hooks.RowMenu rows && rows.worldfolders$rowMenu(x, y)) {
+			cir.setReturnValue(true);
+			return;
+		}
 		if (button != 1 || !((Object) this instanceof Hooks.OrganizedList list)) return;
 		if (!((AbstractContainerWidget) (Object) this).isMouseOver(x, y) || list.worldfolders$rowAt(x, y) != null) return;
 		list.worldfolders$backgroundMenu();

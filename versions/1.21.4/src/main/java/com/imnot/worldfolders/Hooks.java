@@ -137,6 +137,12 @@ public final class Hooks {
 		void worldfolders$setKey(String key);
 	}
 
+	/** A list of another mod (the shaders of Iris) with a right-click menu on its rows. */
+	public interface RowMenu {
+		/** True if a row was under the mouse and got its menu. */
+		boolean worldfolders$rowMenu(double x, double y);
+	}
+
 	/** Every Screen can show one context menu on top of itself. */
 	public interface Overlay {
 		void worldfolders$setMenu(@Nullable ContextMenu menu);

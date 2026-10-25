@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.imnot.worldfolders.mixin.iris",
+  "plugin": "com.imnot.worldfolders.mixin.iris.IrisMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "priority": 1500,
+  "client": [
+    "ShaderPackEntryMixin",
+    "ShaderPackScreenMixin",
+    "ShaderPackSelectionListMixin",
+    "ShaderpackDirectoryManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -22,7 +22,7 @@ public class ConfigScreen extends Screen {
 	private final Screen parent;
 
 	public ConfigScreen(Screen parent) {
-		super(Component.literal("Not Only World Folders"));
+		super(Component.literal("Not Only World Folders (NOWF)"));
 		this.parent = parent;
 	}
 

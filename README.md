@@ -1,6 +1,6 @@
-# Not Only World Folders
+# Not Only World Folders (NOWF)
 
-Mod Fabric **client** qui organise les mondes solo et les serveurs multijoueur en dossiers.
+Mod Fabric **client** qui organise les mondes solo, les serveurs multijoueur et les packs de ressources en dossiers, et partage mondes, packs, shaders et options entre les instances de l'ordinateur.
 
 ## Fonctionnalités
 
@@ -68,6 +68,9 @@ Mod Fabric **client** qui organise les mondes solo et les serveurs multijoueur e
   - glisser-déposer (sur un dossier, entre deux packs, sur « Nouveau dossier », sur la corbeille) et sélection multiple (Ctrl / Maj + clic), comme pour les mondes ;
   - la liste « Sélectionnés » et l'écran des packs de données ne changent pas.
 - **Pack d'une autre instance qui se désactivait** (corrigé en v2.5) : un pack venant d'une autre instance reste dans « Sélectionnés » quand on rouvre l'écran des packs.
+- **Options d'une autre instance** (v2.6, bouton ▼ en haut à gauche de l'écran Options) : comme pour les mondes, choisir une instance fait utiliser au jeu son `options.txt` (touches, graphismes, sons, langue, packs actifs…) : chaque instance sert de preset d'options. Le choix est gardé au prochain lancement ; « Cette instance » revient à ses propres options. Les réglages en cours sont enregistrés avant de changer. Le jeu réécrit ensuite le fichier de l'autre instance avec les options qu'il connaît : une copie de ce fichier tel qu'il était est gardée la première fois (`options.txt.nowf-backup`). Le chemin du fichier utilisé s'affiche au survol.
+- **Shaders de toutes les instances** (v2.6, avec Iris) : l'écran des shaders liste aussi les shaders des autres instances, sous la forme « nom (instance) », et ils s'activent directement depuis leur dossier (rien n'est copié). Clic droit sur un shader : ouvrir son dossier, placer en corbeille. Bouton « Corbeille (n) » en haut à droite ; depuis la corbeille, clic droit : restaurer, ou supprimer définitivement (le shader et son fichier de réglages `.txt`, après confirmation). La corbeille est commune à toutes les instances. Sans Iris, rien de tout cela ne se charge.
+- **Compatibilité** (v2.6) : vérifiée en jeu avec Iris, Sodium et Controlling (recherche dans les touches) chargés ensemble ; le nom affiché « Not Only World Folders (NOWF) » se trouve en cherchant « NOWF » dans la liste des mods.
 - **Options (Mod Menu)** :
   - packs de ressources sans avertissement de version : activé ou non (activé par défaut) ;
   - glisser-déposer activé ou non (activé par défaut) ;
@@ -100,13 +103,14 @@ Un jar par version de Minecraft, dans `release/` (`not-only-world-folders-<versi
 
 La racine du projet contient la même source que `versions/1.21.4` : c'est là que les nouveautés sont écrites, avant d'être portées dans les autres dossiers.
 
-Dépendances : Fabric Loader uniquement. Mod Menu est optionnel (écran d'options). Fabric API n'est pas requise.
+Dépendances : Fabric Loader uniquement. Mod Menu est optionnel (écran d'options), Iris aussi (shaders de toutes les instances). Fabric API n'est pas requise.
 
 ## Build
 
 ```
 gradlew build            # jar dans build/libs, lance aussi le test de la logique (SpaceCheck)
 gradlew runClientGameTest  # test de l'interface dans le vrai jeu, captures dans build/run/clientGameTest/screenshots
+gradlew runClientGameTest -Pcompat  # le même test avec Iris, Sodium et Controlling chargés (1.21.4 et après ; avant, Iris ne démarre pas dans l'environnement de dev)
 ```
 
 Les versions 26.x demandent un JDK 25 (`JAVA_HOME`). Les autres se compilent avec un JDK 21.

@@ -102,5 +102,8 @@
   "worldfolders.pack_open_folder": "Open the pack folder",
   "worldfolders.pack_delete_title": "Delete \"%s\" from the disk for good?",
   "worldfolders.pack_delete_failed": "Pack not deleted (used by the game?)",
-  "worldfolders.trash_tooltip_packs": "The trash of the mod: pack files are never moved on the disk. From this view a pack can be restored or deleted for good."
+  "worldfolders.trash_tooltip_packs": "The trash of the mod: pack files are never moved on the disk. From this view a pack can be restored or deleted for good.",
+  "worldfolders.options_tooltip": "Options in use: %s\nPick another instance to use its options (a copy of its options.txt is kept the first time).",
+  "worldfolders.options_loaded": "Options loaded",
+  "worldfolders.trash_tooltip_shaders": "The trash of the mod: shader packs are never moved on the disk. From this view (right click), a pack can be restored or deleted for good."
 }

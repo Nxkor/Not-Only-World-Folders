@@ -17,6 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class AbstractSelectionListMixin {
 	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
 	private void worldfolders$rightClick(double x, double y, int button, CallbackInfoReturnable<Boolean> cir) {
+		if (button == 1 && (Object) this instanceof Hooks.RowMenu rows && rows.worldfolders$rowMenu(x, y)) {
+			cir.setReturnValue(true);
+			return;
+		}
 		if (button != 1 || !((Object) this instanceof Hooks.OrganizedList list) || !((AbstractSelectionList<?>) (Object) this).isMouseOver(x, y)) return;
 		if (list.worldfolders$rowAt(x, y) instanceof GuiEventListener row) row.mouseClicked(x, y, button);
 		else list.worldfolders$backgroundMenu();

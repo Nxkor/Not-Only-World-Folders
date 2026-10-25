@@ -11,6 +11,7 @@ import com.imnot.worldfolders.Ui;
 import com.imnot.worldfolders.WorldMenus;
 import com.mojang.blaze3d.platform.Window;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
@@ -20,6 +21,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.achievement.StatsScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
@@ -384,6 +386,22 @@ public class DevCheck implements ClientModInitializer {
 				release(mc, rowX(mc), packRowY(0));
 				if (!"Survie".equals(packs().items.get("file/PackB"))) throw new AssertionError("pack dragged onto a folder: " + packs().items);
 				mc.getResourcePackRepository().setSelected(selectedBefore);
+				mc.setScreen(new OptionsScreen(new TitleScreen(), mc.options));
+				next();
+			}
+			case 26 -> { // v2.6: the instance button of the options screen; the shader packs of every instance (with Iris)
+				if (ticks < 5) return;
+				shot(mc, "options_instance");
+				if (mc.screen.children().stream().noneMatch(c -> c instanceof Button b && b.getMessage().getString().startsWith("\u25bc"))) throw new AssertionError("no instance button on the options screen");
+				if (FabricLoader.getInstance().isModLoaded("iris")) IrisCheck.open(mc);
+				next();
+			}
+			case 27 -> {
+				if (ticks < 10) return;
+				if (FabricLoader.getInstance().isModLoaded("iris")) {
+					shot(mc, "shaders");
+					IrisCheck.check(mc);
+				}
 				mc.setScreen(new TitleScreen());
 				Store.LOG.info("World Folders dev check done");
 				mc.stop();
@@ -556,5 +574,28 @@ public class DevCheck implements ClientModInitializer {
 
 	private static void shot(Minecraft mc, String name) {
 		Screenshot.grab(mc.gameDirectory, name + ".png", mc.getMainRenderTarget(), msg -> {});
+	}
+	/** The shaders screen of Iris: its own class, loaded only when Iris is there. */
+	private static final class IrisCheck {
+		static void open(Minecraft mc) {
+			Path other = mc.gameDirectory.toPath().resolve("optInstance");
+			try {
+				Files.createDirectories(other.resolve("saves"));
+				Files.createDirectories(other.resolve("shaderpacks/OtherShader/shaders"));
+			} catch (IOException e) {
+				throw new AssertionError(e);
+			}
+			Store.config().otherSavesDirs.add(other.resolve("saves").toString());
+			mc.setScreen(new net.irisshaders.iris.gui.screen.ShaderPackScreen(new TitleScreen()));
+		}
+
+		static void check(Minecraft mc) {
+			String path = mc.gameDirectory.toPath().resolve("optInstance/shaderpacks/OtherShader").toAbsolutePath().normalize().toString();
+			boolean listed = mc.screen.children().stream().anyMatch(c -> c instanceof net.irisshaders.iris.gui.element.ShaderPackSelectionList l
+					&& l.children().stream().anyMatch(e -> e instanceof net.irisshaders.iris.gui.element.ShaderPackSelectionList.ShaderPackEntry p && p.getPackName().equals(path)));
+			Store.config().otherSavesDirs.removeIf(dir -> dir.contains("optInstance"));
+			Store.save();
+			if (!listed) throw new AssertionError("the shader pack of another instance is not listed");
+		}
 	}
 }

@@ -11,6 +11,7 @@ base {
 
 repositories {
 	maven { url = 'https://maven.terraformersmc.com/releases' }
+	maven { url = 'https://api.modrinth.com/maven' }
 }
 
 // UI test in the real game: ./gradlew runClientGameTest (screenshots in build/run/clientGameTest)
@@ -34,6 +35,17 @@ dependencies {
 	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 	modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	modGametestImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Optional: the shaders screen of Iris (all instances, trash). Compiled against, never bundled.
+	modCompileOnly "maven.modrinth:iris:${project.iris_version}"
+	modGametestCompileOnly "maven.modrinth:iris:${project.iris_version}"
+	// ./gradlew runClient -Pcompat : the game with Iris, Sodium and Controlling, to check them together.
+	if (project.hasProperty('compat')) {
+		modLocalRuntime "maven.modrinth:iris:${project.iris_version}"
+		modLocalRuntime "maven.modrinth:sodium:${project.sodium_version}"
+		modLocalRuntime "maven.modrinth:controlling:${project.controlling_version}"
+		modLocalRuntime "maven.modrinth:searchables:${project.searchables_version}"
+	}
 }
 
 processResources {

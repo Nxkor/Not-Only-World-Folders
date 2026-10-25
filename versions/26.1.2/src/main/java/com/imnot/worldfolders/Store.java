@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.function.Supplier;
 
 /**
@@ -42,6 +43,8 @@ public final class Store {
 		public double notificationSeconds = 5;
 		/** Resource packs: select a pack made for another game version without the confirmation screen. */
 		public boolean skipPackWarning = true;
+		/** options.txt the game reads and writes; "" = the instance's own. Another instance's is picked in the options screen. */
+		public String optionsFile = "";
 	}
 
 	/** What we learn about a server while playing on it or pinging it. */
@@ -76,6 +79,8 @@ public final class Store {
 		/** One organisation per saves folder (key = its real path). */
 		HashMap<String, Space> worlds = new HashMap<>();
 		Space packs = new Space();
+		/** Shader packs sent to the trash of the shaders screen (Iris), by their full path. */
+		LinkedHashSet<String> shaderTrash = new LinkedHashSet<>();
 	}
 
 	private static Shared shared = loadShared();
@@ -138,7 +143,13 @@ public final class Store {
 		Shared s = load(SHARED_FILE, Shared.class, Shared::new);
 		if (s.worlds == null) s.worlds = new HashMap<>();
 		if (s.packs == null) s.packs = new Space();
+		if (s.shaderTrash == null) s.shaderTrash = new LinkedHashSet<>();
 		return s;
+	}
+
+	/** Shader packs in the trash (full paths): the shaders screen of every instance hides them. */
+	public static LinkedHashSet<String> shaderTrash() {
+		return shared.shaderTrash;
 	}
 
 	public static Space servers() {

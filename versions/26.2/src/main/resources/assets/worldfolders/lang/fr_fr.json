@@ -105,5 +105,8 @@
   "worldfolders.pack_open_folder": "Ouvrir le dossier du pack",
   "worldfolders.pack_delete_title": "Supprimer définitivement « %s » du disque ?",
   "worldfolders.pack_delete_failed": "Pack non supprimé (utilisé par le jeu ?)",
-  "worldfolders.trash_tooltip_packs": "Corbeille propre au mod : les fichiers des packs ne sont jamais déplacés sur le disque. Depuis cette vue, un pack peut être restauré ou supprimé définitivement."
+  "worldfolders.trash_tooltip_packs": "Corbeille propre au mod : les fichiers des packs ne sont jamais déplacés sur le disque. Depuis cette vue, un pack peut être restauré ou supprimé définitivement.",
+  "worldfolders.options_tooltip": "Options utilisées : %s\nChoisir une autre instance pour reprendre ses options (une copie de son options.txt est gardée la première fois).",
+  "worldfolders.options_loaded": "Options chargées",
+  "worldfolders.trash_tooltip_shaders": "Corbeille propre au mod : les shaders ne sont jamais déplacés sur le disque. Depuis cette vue (clic droit), un shader peut être restauré ou supprimé définitivement."
 }

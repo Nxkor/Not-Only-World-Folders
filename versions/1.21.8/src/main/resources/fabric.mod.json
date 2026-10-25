@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "worldfolders",
   "version": "${version}",
-  "name": "Not Only World Folders",
+  "name": "Not Only World Folders (NOWF)",
   "description": "Organise singleplayer worlds and servers into folders, with trash, favorites, descriptions, copy/paste and drag and drop. Everything lives in config/worldfolders.json: removing the mod leaves your saves untouched.",
   "authors": ["Wyv_"],
   "license": "MIT",
@@ -11,7 +11,7 @@
   "entrypoints": {
     "modmenu": ["com.imnot.worldfolders.ModMenuEntry"]
   },
-  "mixins": ["worldfolders.mixins.json"],
+  "mixins": ["worldfolders.mixins.json", "worldfolders.iris.mixins.json"],
   "depends": {
     "fabricloader": ">=0.15.0",
     "minecraft": ">=1.21.6 <1.21.9",

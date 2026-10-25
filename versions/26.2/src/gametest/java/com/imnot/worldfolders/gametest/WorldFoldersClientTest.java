@@ -727,6 +727,7 @@ public class WorldFoldersClientTest implements FabricClientGameTest {
 		check(ctx.computeOnClient(mc -> promptText(mc).equals("minecraft:diamond_block")), "second Tab takes the second suggestion: " + ctx.computeOnClient(mc -> promptText(mc)));
 		v24(ctx);
 		v25(ctx);
+		v26(ctx);
 		ctx.setScreen(TitleScreen::new);
 	}
 
@@ -822,6 +823,106 @@ public class WorldFoldersClientTest implements FabricClientGameTest {
 			Store.config().otherSavesDirs.removeIf(dir -> dir.contains("packInstance"));
 			Store.save();
 		});
+	}
+
+	/** v2.6: the options of another instance, picked in the options screen; the shader packs of every instance (with Iris). */
+	private static void v26(ClientGameTestContext ctx) throws Exception {
+		Path other = ctx.computeOnClient(mc -> {
+			Path game = mc.gameDirectory.toPath().resolve("optInstance");
+			Files.createDirectories(game.resolve("saves"));
+			Files.writeString(game.resolve("options.txt"), "renderDistance:7\n");
+			Files.createDirectories(game.resolve("shaderpacks/OtherShader/shaders"));
+			Store.config().otherSavesDirs.add(game.resolve("saves").toString());
+			return game;
+		});
+		int ownDistance = ctx.computeOnClient(mc -> mc.options.renderDistance().get());
+		// The dropdown: this instance, then every instance with an options.txt (the real ones of this computer too).
+		List<Path> choices = ctx.computeOnClient(mc -> {
+			List<Path> out = new java.util.ArrayList<>();
+			var all = WorldMenus.instances();
+			for (int i = 0; i < all.size(); i++) {
+				Path f = all.get(i).saves().toAbsolutePath().normalize().resolveSibling("options.txt");
+				if (i == 0 || Files.isRegularFile(f)) out.add(f);
+			}
+			return out;
+		});
+		int index = choices.indexOf(other.resolve("options.txt").toAbsolutePath().normalize());
+		check(index > 0, "an instance with options is offered");
+		ctx.setScreen(() -> new OptionsScreen(new TitleScreen(), Minecraft.getInstance().options, false));
+		ctx.waitTicks(5);
+		ctx.takeScreenshot("50_options_instance_button");
+		clickLiteralButton(ctx, "▼");
+		ctx.waitTicks(2);
+		ctx.takeScreenshot("51_options_instance_menu");
+		clickDropdownItem(ctx, "▼", index, choices.size());
+		ctx.waitFor(mc -> mc.gui.overlay() == null && mc.gui.screen() instanceof OptionsScreen); // the resources reload
+		ctx.takeScreenshot("52_options_of_other_instance");
+		check(ctx.computeOnClient(mc -> mc.options.renderDistance().get() == 7 && !Store.config().optionsFile.isEmpty()
+				&& Files.exists(other.resolve("options.txt.nowf-backup"))), "the options of the other instance are in use");
+		clickLiteralButton(ctx, "▼");
+		clickDropdownItem(ctx, "▼", 0, choices.size()); // this instance
+		ctx.waitFor(mc -> mc.gui.overlay() == null && mc.gui.screen() instanceof OptionsScreen); // the resources reload
+		check(ctx.computeOnClient(mc -> mc.options.renderDistance().get() == ownDistance && Store.config().optionsFile.isEmpty()), "back to the options of this instance");
+
+		if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("iris")) IrisCheck.run(ctx, other);
+		ctx.runOnClient(mc -> {
+			Store.config().otherSavesDirs.removeIf(dir -> dir.contains("optInstance"));
+			Store.save();
+		});
+	}
+
+	/** The shaders screen of Iris: its own class, loaded only when Iris is there. */
+	private static final class IrisCheck {
+		static void run(ClientGameTestContext ctx, Path other) {
+			ctx.setScreen(() -> new net.irisshaders.iris.gui.screen.ShaderPackScreen(new TitleScreen()));
+			ctx.waitTicks(10);
+			String path = other.resolve("shaderpacks/OtherShader").toAbsolutePath().normalize().toString();
+			ctx.takeScreenshot("53_shaders_all_instances");
+			int row = shaderRow(ctx, path);
+			check(row >= 0, "the shader pack of another instance is listed");
+			cursorOnShader(ctx, row);
+			ctx.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_RIGHT);
+			ctx.takeScreenshot("54_shader_menu");
+			clickMenuItem(ctx, 1, 2); // open folder, trash
+			check(shaderRow(ctx, path) < 0 && ctx.computeOnClient(mc -> Store.shaderTrash().contains(path)), "shader pack sent to the trash");
+			clickButton(ctx, "worldfolders.trash");
+			ctx.waitTicks(5);
+			ctx.takeScreenshot("55_shader_trash");
+			row = shaderRow(ctx, path);
+			check(row >= 0, "the trash view shows it");
+			cursorOnShader(ctx, row);
+			ctx.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_RIGHT);
+			clickMenuItem(ctx, 0, 2); // restore, delete for good
+			check(shaderRow(ctx, path) < 0 && ctx.computeOnClient(mc -> Store.shaderTrash().isEmpty()), "shader pack restored");
+		}
+
+		private static int shaderRow(ClientGameTestContext ctx, String name) {
+			ctx.waitTicks(2);
+			return ctx.computeOnClient(mc -> {
+				for (var child : mc.gui.screen().children()) {
+					if (child instanceof net.irisshaders.iris.gui.element.ShaderPackSelectionList list) {
+						for (int i = 0; i < list.children().size(); i++) {
+							if (list.children().get(i) instanceof net.irisshaders.iris.gui.element.ShaderPackSelectionList.ShaderPackEntry e && e.getPackName().equals(name)) return i;
+						}
+					}
+				}
+				return -1;
+			});
+		}
+
+		private static void cursorOnShader(ClientGameTestContext ctx, int index) {
+			double[] p = ctx.computeOnClient(mc -> {
+				for (var child : mc.gui.screen().children()) {
+					if (child instanceof net.irisshaders.iris.gui.element.ShaderPackSelectionList list) {
+						list.setScrollAmount(Math.max(0, list.scrollAmount() + list.getRowTop(index) - list.getY() - 40));
+						double scale = mc.getWindow().getGuiScale();
+						return new double[]{(list.getRowLeft() + 40) * scale, (list.getRowTop(index) + 8) * scale};
+					}
+				}
+				throw new AssertionError("no shader list");
+			});
+			ctx.getInput().setCursorPos(p[0], p[1]);
+		}
 	}
 
 	/** Rows above the first pack or folder of the "Available" list: its title is a row since 1.21.9. */
